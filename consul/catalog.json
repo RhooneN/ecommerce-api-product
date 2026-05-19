@@ -1,0 +1,8 @@
+{
+    "name": "catalog",
+    "port": 8001,
+    "check": {
+      "http": "http://catalog:8001/health/",
+      "interval": "10s"
+  }
+}
