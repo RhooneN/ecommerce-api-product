@@ -29,16 +29,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 #SECRET_KEY = 'django-insecure-7pz12*uts*=cu^6246h!ym_zl(y7a=vtpam#wb%6(q-_ljd(#o'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 from decouple import config
 
-ALLOWED_HOSTS = ['payment', "orders", "notif", '127.0.0.1',
-    "authentic",
-    "shopping_cart",
-    "catalog",
-    "localhost",
-    'auth-service',  # For Docker compatibility
-    'app']
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+
+ALLOWED_HOSTS = ["*"] if DEBUG else [".onrender.com"]
     
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",  # Auth service
