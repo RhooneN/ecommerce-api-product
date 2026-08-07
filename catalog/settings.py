@@ -35,13 +35,33 @@ DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = ["*"] if DEBUG else [".onrender.com"]
     
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8000",  # Auth service
-    "http://127.0.0.1:8000",  # Auth service
-    "http://localhost:8001",  # This service
-    "http://127.0.0.1:8001",  # This service
+#SESSION CORS && CSRF
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # or 'cache' or 'file'
+SESSION_COOKIE_NAME = 'sessionid'
+SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
+SESSION_COOKIE_DOMAIN = None
+SESSION_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_HTTP_ONLY = True
+
+
+# For development, you might need to disable secure cookies
+SESSION_COOKIE_SECURE = True  # True in production with HTTPS
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = "None" 	
+
+CORS_ALLOWED_ORIGINS = ["*"] if DEBUG else [".onrender.com"]
+
+# Allow credentials (cookies, auth headers)
+CORS_ALLOW_CREDENTIALS = True
+
+# Allow specific headers
+CORS_ALLOW_HEADERS = [
+    'content-type',
+    'authorization',
+    'x-csrftoken',
 ]
 
+CSRF_COOKIE_SAMESITE = "None"
 
 # Application definition
 
@@ -116,13 +136,28 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Your Project API',
-    'DESCRIPTION': 'Your project description',
+    'TITLE': 'catalog product API',
+    'DESCRIPTION': 'catalog description',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
     'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
     'REDOC_DIST': 'SIDECAR',
+    "APPEND_COMPONENTS": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+            }
+        }
+    },
+
+    "SECURITY": [
+        {
+            "bearerAuth": [],
+        }
+    ],
     # OTHER SETTINGS
 }
 CSRF_COOKIE_SECURE = False
@@ -189,3 +224,46 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ============================================
+# LOGGING CONFIGURATION FOR DEBUGGING
+# ============================================
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'product.log',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'app': {  
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG' if DEBUG else 'INFO',
+            'propagate': True,
+        },
+        'requests': {
+            'handlers': ['console'],
+            'level': 'DEBUG' if DEBUG else 'WARNING',
+            'propagate': True,
+        },
+    },
+}

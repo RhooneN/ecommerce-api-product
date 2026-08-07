@@ -1,6 +1,7 @@
 from django.urls import path, include
 from . import views
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from rest_framework.permissions import AllowAny
 
 # API versioning prefix
 # ~ app_name = 'products'
@@ -23,9 +24,10 @@ urlpatterns = [
      path('stats/', views.ProductStatsView.as_view(), name='stats'),
      path("health/", views.health),
      
-     #Swagger
-     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+      #Swagger
+    path(
+        "api/schema/", SpectacularAPIView.as_view(permission_classes=[AllowAny]), name="schema",),
     # Optional UI:
-    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
- ]
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema', permission_classes=[AllowAny]), name='swagger-ui'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema', permission_classes=[AllowAny]), name='redoc'),
+    ]
